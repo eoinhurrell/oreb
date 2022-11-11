@@ -10,6 +10,19 @@ import pandas as pd
 from requests_html import HTMLSession, user_agent
 import tweepy
 
+
+headers = {
+    "User-Agent": user_agent(),
+}
+
+org_tweet = Template(
+    """* $when - $tweet_id
+$text
+   | $screen_name | * $favs | RT $RTs | $source | $sensitive
+   | urls: $urls
+   | media: $media
+"""
+)
 consumer_key = ""
 consumer_secret = ""
 access_token = ""
@@ -42,26 +55,6 @@ def get_twitter_api(config):
 
     api = tweepy.API(auth)
     return api
-
-config = load_config()
-headers = {
-    "User-Agent": user_agent(),
-}
-
-root_path = os.path.dirname(os.path.abspath(__file__))
-root_path = os.path.join(root_path, "tweets/")
-root_path = os.path.join(root_path, config["user_name"])
-root_pickle_path = os.path.join(root_path, "pickle/")
-root_render_path = os.path.join(root_path, "renders/")
-
-org_tweet = Template(
-    """* $when - $tweet_id
-$text
-   | $screen_name | * $favs | RT $RTs | $source | $sensitive
-   | urls: $urls
-   | media: $media
-"""
-)
 
 
 def process_media(media, render_folder):
@@ -228,6 +221,13 @@ def append_render(api, recent_name, render_name):
 
 
 def main():
+    config = load_config()
+    root_path = os.path.dirname(os.path.abspath(__file__))
+    root_path = os.path.join(root_path, "tweets/")
+    root_path = os.path.join(root_path, config["user_name"])
+    root_pickle_path = os.path.join(root_path, "pickle/")
+    root_render_path = os.path.join(root_path, "renders/")
+
     api = get_twitter_api(config)
     print(root_pickle_path)
     recents = [x for x in glob(root_pickle_path + "day-*")]
